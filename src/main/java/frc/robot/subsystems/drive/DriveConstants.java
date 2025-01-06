@@ -1,3 +1,13 @@
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Amps;
@@ -8,7 +18,6 @@ import static edu.wpi.first.units.Units.Meters;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -20,7 +29,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 public class DriveConstants {
 
   // TODO: get real ID
-  public static final int pigeonCANID = 1;
+  public static final int pigeonCANID = 13;
 
   private static final Distance trackWidthX = Inches.of(21);
   private static final Distance trackWidthY = Inches.of(21);
@@ -42,13 +51,15 @@ public class DriveConstants {
   public static final CANBus CANBus = new CANBus(CANBusName);
   public static final double odometryFrequency = CANBus.isNetworkFD() ? 250.0 : 100.0;
 
-  public static final Translation2d[] moduleTranslations = new Translation2d[] {
-      new Translation2d(trackWidthX.times(0.5), trackWidthY.times(0.5)),
-      new Translation2d(trackWidthX.times(0.5), trackWidthY.times(-0.5)),
-      new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(0.5)),
-      new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(-0.5))};
+  public static final Translation2d[] moduleTranslations =
+      new Translation2d[] {
+        new Translation2d(trackWidthX.times(0.5), trackWidthY.times(0.5)),
+        new Translation2d(trackWidthX.times(0.5), trackWidthY.times(-0.5)),
+        new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(0.5)),
+        new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(-0.5))
+      };
 
-  public static final double driveBaseRadius = 
+  public static final double driveBaseRadius =
       Math.hypot(trackWidthX.in(Meters) / 2.0, trackWidthY.in(Meters) / 2.0);
 
   public static final double robotMassKG = 74.088;
@@ -68,7 +79,7 @@ public class DriveConstants {
               1),
           moduleTranslations);
 
-  public static final SwerveDriveKinematics kinematics = 
+  public static final SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(moduleTranslations);
 
   public enum Mk4iReductions {
@@ -86,6 +97,7 @@ public class DriveConstants {
   }
 
   public static enum ModuleConstants {
+    // TODO: get real ID's
     FRONT_LEFT(1, 2, 3, new Rotation2d()),
     FRONT_RIGHT(4, 5, 6, new Rotation2d()),
     BACK_LEFT(7, 8, 9, new Rotation2d()),
@@ -96,16 +108,11 @@ public class DriveConstants {
     final int encoderCANID;
     final Rotation2d encoderOffset;
 
-    ModuleConstants(
-      int driveCANID,
-      int turnCANID,
-      int encoderCANID,
-      Rotation2d encoderOffset) {
-        this.driveCANID = driveCANID;
-        this.turnCANID = turnCANID;
-        this.encoderCANID = encoderCANID;
-        this.encoderOffset = encoderOffset;
+    ModuleConstants(int driveCANID, int turnCANID, int encoderCANID, Rotation2d encoderOffset) {
+      this.driveCANID = driveCANID;
+      this.turnCANID = turnCANID;
+      this.encoderCANID = encoderCANID;
+      this.encoderOffset = encoderOffset;
     }
   }
-
 }

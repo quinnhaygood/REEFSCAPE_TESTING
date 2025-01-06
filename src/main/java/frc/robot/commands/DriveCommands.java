@@ -1,6 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 3 as published by the Free Software Foundation or
@@ -94,11 +91,12 @@ public class DriveCommands {
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
-          speeds.toRobotRelativeSpeeds(
-              isFlipped
-                  ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
-                  : RobotState.getRotation());
-          drive.runVelocity(speeds);
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
+                      : RobotState.getRotation()));
         },
         drive);
   }
@@ -121,6 +119,7 @@ public class DriveCommands {
             0.0,
             ANGLE_KD,
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Construct command
@@ -144,11 +143,12 @@ public class DriveCommands {
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
                       && DriverStation.getAlliance().get() == Alliance.Red;
-              speeds.toRobotRelativeSpeeds(
-                  isFlipped
-                      ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
-                      : RobotState.getRotation());
-              drive.runVelocity(speeds);
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
+                          : RobotState.getRotation()));
             },
             drive)
 

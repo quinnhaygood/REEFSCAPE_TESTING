@@ -1,6 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 3 as published by the Free Software Foundation or
@@ -14,8 +11,7 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static frc.robot.util.PhoenixUtil.*;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -194,7 +190,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Update drive inputs
     inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
     inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
-    inputs.driveVelocityRadPerSec = driveVelocity.getValue().in(RadiansPerSecond);
+    inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
@@ -203,7 +199,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
-    inputs.turnVelocityRadPerSec = turnVelocity.getValue().in(RadiansPerSecond);
+    inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 

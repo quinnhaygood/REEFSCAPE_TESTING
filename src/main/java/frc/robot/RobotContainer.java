@@ -1,6 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 3 as published by the Free Software Foundation or
@@ -12,8 +9,6 @@
 // GNU General Public License for more details.
 
 package frc.robot;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +27,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -144,7 +140,8 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         RobotState.setPose(
-                            new Pose2d(RobotState.getPose().getTranslation(), new Rotation2d())),
+                            new Pose2d(RobotState.getPose().getTranslation(), new Rotation2d()),
+                            drive.getModulePositions()),
                     drive)
                 .ignoringDisable(true));
   }

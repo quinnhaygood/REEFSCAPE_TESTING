@@ -1,6 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // version 3 as published by the Free Software Foundation or
@@ -16,18 +13,11 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -50,6 +40,10 @@ import frc.robot.Constants.Mode;
 import frc.robot.RobotState;
 import frc.robot.RobotState.OdometryMeasurement;
 import frc.robot.util.LocalADStarAK;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -60,6 +54,14 @@ public class DriveSubsystem extends SubsystemBase {
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+
+  private SwerveModulePosition[] lastModulePositions = // For delta tracking
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
 
   private SwerveDriveKinematics kinematics = DriveConstants.kinematics;
   private Rotation2d rawGyroRotation = new Rotation2d();
@@ -85,7 +87,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
         RobotState::getPose,
-        RobotState::setPose,
+        (pose) -> RobotState.setPose(pose, getModulePositions()),
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
@@ -143,7 +145,6 @@ public class DriveSubsystem extends SubsystemBase {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
-    SwerveModulePosition[] lastModulePositions = RobotState.getLastPositions();
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
       SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
@@ -184,13 +185,13 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
-    speeds.discretize(0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(speeds);
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.freeSpeed);
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", speeds);
+    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
@@ -248,6 +249,15 @@ public class DriveSubsystem extends SubsystemBase {
     return states;
   }
 
+  /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+  public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] states = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = modules[i].getPosition();
+    }
+    return states;
+  }
+
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   private ChassisSpeeds getChassisSpeeds() {
@@ -281,5 +291,4 @@ public class DriveSubsystem extends SubsystemBase {
   public static double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DriveConstants.driveBaseRadius;
   }
-
 }
