@@ -13,7 +13,6 @@
 
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,6 +39,9 @@ public class ModuleIOSim implements ModuleIO {
   private static final DCMotor DRIVE_GEARBOX = DCMotor.getKrakenX60Foc(1);
   private static final DCMotor TURN_GEARBOX = DCMotor.getKrakenX60Foc(1);
 
+  private static final double STEER_INERTIA = 0.004;
+  private static final double DRIVE_INERTIA = 0.025;
+
   private final DCMotorSim driveSim;
   private final DCMotorSim turnSim;
 
@@ -51,17 +53,17 @@ public class ModuleIOSim implements ModuleIO {
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
 
-  public ModuleIOSim(SwerveModuleConstants constants) {
+  public ModuleIOSim() {
     // Create drive and turn sim models
     driveSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio),
+                DRIVE_GEARBOX, DRIVE_INERTIA, DriveConstants.driveGearRatio.reduction),
             DRIVE_GEARBOX);
     turnSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio),
+                TURN_GEARBOX, STEER_INERTIA, DriveConstants.driveGearRatio.reduction),
             TURN_GEARBOX);
 
     // Enable wrapping for turn PID
