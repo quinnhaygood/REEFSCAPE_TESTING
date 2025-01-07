@@ -30,6 +30,7 @@ public class DriveConstants {
   // TODO: get real ID
   public static final int pigeonCANID = 13;
 
+  // The width of the robot from module center to module center
   private static final Distance trackWidthX = Inches.of(21);
   private static final Distance trackWidthY = Inches.of(21);
 
@@ -43,8 +44,8 @@ public class DriveConstants {
   public static final double maxLinearSpeed = Units.feetToMeters(19.5);
   public static final double maxAngularVel = maxLinearSpeed / driveBaseRadius;
 
-  public static final Mk4iReductions driveGearRatio = Mk4iReductions.L3_16T;
-  public static final Mk4iReductions turnGearRatio = Mk4iReductions.TURN;
+  public static final double driveGearRatio = Mk4iReductions.L3_16T.reduction;
+  public static final double turnGearRatio = Mk4iReductions.TURN.reduction;
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
@@ -73,8 +74,7 @@ public class DriveConstants {
               wheelRadius.in(Meters),
               maxLinearSpeed,
               wheelCOF,
-              DCMotor.getKrakenX60Foc(1).withReduction(driveGearRatio.reduction),
-              driveGearRatio.reduction,
+              DCMotor.getKrakenX60Foc(1).withReduction(driveGearRatio),
               slipCurrent.in(Amps),
               1),
           moduleTranslations);

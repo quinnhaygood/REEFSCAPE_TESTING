@@ -106,7 +106,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = new Slot0Configs().withKP(0.1).withKI(0).withKD(0).withKS(0).withKV(0.124);
     ;
-    driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.driveGearRatio.reduction;
+    driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.driveGearRatio;
     driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.slipCurrent.in(Amps);
     driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DriveConstants.slipCurrent.in(Amps);
     driveConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.slipCurrent.in(Amps);
@@ -130,12 +130,12 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.encoderCANID;
     turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-    turnConfig.Feedback.RotorToSensorRatio = DriveConstants.turnGearRatio.reduction;
+    turnConfig.Feedback.RotorToSensorRatio = DriveConstants.turnGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity =
-        100.0 / DriveConstants.turnGearRatio.reduction;
+        100.0 / DriveConstants.turnGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
         turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
-    turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * DriveConstants.turnGearRatio.reduction;
+    turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * DriveConstants.turnGearRatio;
     turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     // TODO: check if this is correct
