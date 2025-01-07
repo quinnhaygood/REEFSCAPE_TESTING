@@ -11,20 +11,19 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
 
 public class DriveConstants {
 
@@ -36,9 +35,13 @@ public class DriveConstants {
 
   public static final Distance wheelRadius = Inches.of(2.1);
 
+  public static final double driveBaseRadius =
+      Math.hypot(trackWidthX.in(Meters) / 2.0, trackWidthY.in(Meters) / 2.0);
+
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot
-  public static final LinearVelocity freeSpeed = FeetPerSecond.of(19.5);
+  public static final double maxLinearSpeed = Units.feetToMeters(19.5);
+  public static final double maxAngularVel = maxLinearSpeed / driveBaseRadius;
 
   public static final Mk4iReductions driveGearRatio = Mk4iReductions.L3_16T;
   public static final Mk4iReductions turnGearRatio = Mk4iReductions.TURN;
@@ -47,9 +50,8 @@ public class DriveConstants {
   // This needs to be tuned to your individual robot
   public static final Current slipCurrent = Amps.of(120);
 
-  private static final String CANBusName = "canivore";
-  public static final CANBus CANBus = new CANBus(CANBusName);
-  public static final double odometryFrequency = CANBus.isNetworkFD() ? 250.0 : 100.0;
+  public static final String CANBusName = "canivore";
+  public static final double odometryFrequency = CANBusName.equals("rio") ? 100.0 : 250.0;
 
   public static final Translation2d[] moduleTranslations =
       new Translation2d[] {
@@ -58,9 +60,6 @@ public class DriveConstants {
         new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(0.5)),
         new Translation2d(trackWidthX.times(-0.5), trackWidthY.times(-0.5))
       };
-
-  public static final double driveBaseRadius =
-      Math.hypot(trackWidthX.in(Meters) / 2.0, trackWidthY.in(Meters) / 2.0);
 
   public static final double robotMassKG = 74.088;
   public static final double robotMOI = 6.883;
@@ -71,11 +70,12 @@ public class DriveConstants {
           robotMassKG,
           robotMOI,
           new ModuleConfig(
-              wheelRadius,
-              freeSpeed,
+              wheelRadius.in(Meters),
+              maxLinearSpeed,
               wheelCOF,
               DCMotor.getKrakenX60Foc(1).withReduction(driveGearRatio.reduction),
-              slipCurrent,
+              driveGearRatio.reduction,
+              slipCurrent.in(Amps),
               1),
           moduleTranslations);
 

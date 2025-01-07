@@ -10,14 +10,20 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -40,10 +46,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.RobotState;
 import frc.robot.RobotState.OdometryMeasurement;
 import frc.robot.util.LocalADStarAK;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -187,7 +189,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.freeSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxLinearSpeed);
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -282,13 +284,4 @@ public class DriveSubsystem extends SubsystemBase {
     return output;
   }
 
-  /** Returns the maximum linear speed in meters per sec. */
-  public static double getMaxLinearSpeedMetersPerSec() {
-    return DriveConstants.freeSpeed.in(MetersPerSecond);
-  }
-
-  /** Returns the maximum angular speed in radians per sec. */
-  public static double getMaxAngularSpeedRadPerSec() {
-    return getMaxLinearSpeedMetersPerSec() / DriveConstants.driveBaseRadius;
-  }
 }

@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -53,6 +54,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   private static final boolean ENABLE_FOC = true;
 
   // Hardware objects
+  private final CANBus CANBus;
   private final TalonFX driveTalon;
   private final TalonFX turnTalon;
   private final CANcoder cancoder;
@@ -93,9 +95,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Debouncer turnEncoderConnectedDebounce = new Debouncer(0.5);
 
   public ModuleIOTalonFX(ModuleConstants constants) {
-    driveTalon = new TalonFX(constants.driveCANID, DriveConstants.CANBus);
-    turnTalon = new TalonFX(constants.turnCANID, DriveConstants.CANBus);
-    cancoder = new CANcoder(constants.encoderCANID, DriveConstants.CANBus);
+    CANBus = new CANBus(DriveConstants.CANBusName);
+
+    driveTalon = new TalonFX(constants.driveCANID, CANBus);
+    turnTalon = new TalonFX(constants.turnCANID, CANBus);
+    cancoder = new CANcoder(constants.encoderCANID, CANBus);
 
     // Configure drive motor
     var driveConfig = new TalonFXConfiguration();
