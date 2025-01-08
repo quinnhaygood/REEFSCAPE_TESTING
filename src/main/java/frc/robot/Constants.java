@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
-  // ensure that the robot is not initialed with sim IO when running on real hardware 
+  // ensure that the robot is not initialed with sim IO when running on real hardware
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {

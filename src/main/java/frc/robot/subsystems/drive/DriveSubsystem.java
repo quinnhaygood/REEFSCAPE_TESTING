@@ -12,18 +12,11 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -46,6 +39,10 @@ import frc.robot.Constants.Mode;
 import frc.robot.RobotState;
 import frc.robot.RobotState.OdometryMeasurement;
 import frc.robot.util.LocalADStarAK;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -88,8 +85,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
-        RobotState::getPose,
-        (pose) -> RobotState.setPose(pose, getModulePositions()),
+        RobotState.getInstance()::getPose,
+        (pose) -> RobotState.getInstance().setPose(pose, getModulePositions()),
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
@@ -172,8 +169,9 @@ public class DriveSubsystem extends SubsystemBase {
       }
 
       // Apply update
-      RobotState.addOdometryMeasurement(
-          new OdometryMeasurement(modulePositions, rawGyroRotation, sampleTimestamps[i]));
+      RobotState.getInstance()
+          .addOdometryMeasurement(
+              new OdometryMeasurement(modulePositions, rawGyroRotation, sampleTimestamps[i]));
     }
 
     // Update gyro alert
@@ -283,5 +281,4 @@ public class DriveSubsystem extends SubsystemBase {
     }
     return output;
   }
-
 }

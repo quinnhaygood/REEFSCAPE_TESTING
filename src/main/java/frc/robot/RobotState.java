@@ -29,9 +29,9 @@ public class RobotState {
 
   public record VisionMeasurement(Pose2d pose, double timeStamp, Matrix<N3, N1> stdDevs) {}
 
-  private static final SwerveDriveKinematics kinematics = DriveConstants.kinematics;
+  private final SwerveDriveKinematics kinematics = DriveConstants.kinematics;
 
-  private static final SwerveModulePosition[] startingPositions =
+  private final SwerveModulePosition[] startingPositions =
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
@@ -39,18 +39,30 @@ public class RobotState {
         new SwerveModulePosition()
       };
 
-  private static final SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), startingPositions, new Pose2d());
+  private final SwerveDrivePoseEstimator poseEstimator;
 
-  private static final SwerveDriveOdometry odometry =
-      new SwerveDriveOdometry(kinematics, new Rotation2d(), startingPositions, new Pose2d());
+  private final SwerveDriveOdometry odometry;
+
+  private static RobotState instance;
+
+  private RobotState() {
+    poseEstimator =
+        new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), startingPositions, new Pose2d());
+    odometry =
+        new SwerveDriveOdometry(kinematics, new Rotation2d(), startingPositions, new Pose2d());
+  }
+
+  public static RobotState getInstance() {
+    if (instance == null) instance = new RobotState();
+    return instance;
+  }
 
   /**
    * Adds the data from an odometry measurement to the pose estimator
    *
    * @param measurement The measurement to be added
    */
-  public static void addOdometryMeasurement(OdometryMeasurement measurement) {
+  public void addOdometryMeasurement(OdometryMeasurement measurement) {
     odometry.update(measurement.gyro, measurement.wheelPositions);
     poseEstimator.updateWithTime(
         measurement.timeStamp, measurement.gyro, measurement.wheelPositions);
@@ -61,30 +73,30 @@ public class RobotState {
    *
    * @param measurement The measurement to be added
    */
-  public static void addVisionMeasurement(VisionMeasurement measurement) {
+  public void addVisionMeasurement(VisionMeasurement measurement) {
     poseEstimator.addVisionMeasurement(
         measurement.pose, measurement.timeStamp, measurement.stdDevs);
   }
 
   /** Returns the current odometry pose. */
-  @AutoLogOutput(key = "RobotPose/PoseEstimator")
-  public static Pose2d getPose() {
+  @AutoLogOutput(key = "RobotState/EstimatedPose")
+  public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
 
   /** Returns the current odometry pose. */
-  @AutoLogOutput(key = "RobotPose/Odometry")
-  public static Pose2d getOdometryPose() {
+  @AutoLogOutput(key = "RobotState/OdometryPose")
+  public Pose2d getOdometryPose() {
     return poseEstimator.getEstimatedPosition();
   }
 
   /** Returns the current rotation. */
-  public static Rotation2d getRotation() {
+  public Rotation2d getRotation() {
     return getPose().getRotation();
   }
 
   /** Resets the current odometry pose. */
-  public static void setPose(Pose2d pose, SwerveModulePosition[] modulePositions) {
-    poseEstimator.resetPosition(getRotation(), modulePositions, pose);
+  public void setPose(Pose2d pose, SwerveModulePosition[] modulePositions) {
+    poseEstimator.resetPosition(pose.getRotation(), modulePositions, pose);
   }
 }

@@ -10,13 +10,6 @@
 
 package frc.robot.commands;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -35,6 +28,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.DriveSubsystem;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -96,8 +95,8 @@ public class DriveCommands {
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,
                   isFlipped
-                      ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
-                      : RobotState.getRotation()));
+                      ? RobotState.getInstance().getRotation().plus(new Rotation2d(Math.PI))
+                      : RobotState.getInstance().getRotation()));
         },
         drive);
   }
@@ -133,7 +132,8 @@ public class DriveCommands {
               // Calculate angular speed
               double omega =
                   angleController.calculate(
-                      RobotState.getRotation().getRadians(), rotationSupplier.get().getRadians());
+                      RobotState.getInstance().getRotation().getRadians(),
+                      rotationSupplier.get().getRadians());
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
@@ -148,13 +148,14 @@ public class DriveCommands {
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
                       isFlipped
-                          ? RobotState.getRotation().plus(new Rotation2d(Math.PI))
-                          : RobotState.getRotation()));
+                          ? RobotState.getInstance().getRotation().plus(new Rotation2d(Math.PI))
+                          : RobotState.getInstance().getRotation()));
             },
             drive)
 
         // Reset PID controller when command starts
-        .beforeStarting(() -> angleController.reset(RobotState.getRotation().getRadians()));
+        .beforeStarting(
+            () -> angleController.reset(RobotState.getInstance().getRotation().getRadians()));
   }
 
   /**
@@ -251,14 +252,14 @@ public class DriveCommands {
             Commands.runOnce(
                 () -> {
                   state.positions = drive.getWheelRadiusCharacterizationPositions();
-                  state.lastAngle = RobotState.getRotation();
+                  state.lastAngle = RobotState.getInstance().getRotation();
                   state.gyroDelta = 0.0;
                 }),
 
             // Update gyro delta
             Commands.run(
                     () -> {
-                      var rotation = RobotState.getRotation();
+                      var rotation = RobotState.getInstance().getRotation();
                       state.gyroDelta += Math.abs(rotation.minus(state.lastAngle).getRadians());
                       state.lastAngle = rotation;
                     })

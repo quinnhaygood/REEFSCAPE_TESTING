@@ -60,16 +60,18 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final CANcoder cancoder;
 
   // Voltage control requests
-  private final VoltageOut voltageRequest = new VoltageOut(0);
-  private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
-  private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
+  private final VoltageOut voltageRequest = new VoltageOut(0).withUpdateFreqHz(0);
+  private final PositionVoltage positionVoltageRequest =
+      new PositionVoltage(0.0).withUpdateFreqHz(0);
+  private final VelocityVoltage velocityVoltageRequest =
+      new VelocityVoltage(0.0).withUpdateFreqHz(0);
 
   // Torque-current control requests
-  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
+  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0).withUpdateFreqHz(0);
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
-      new PositionTorqueCurrentFOC(0.0);
+      new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0);
   private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
-      new VelocityTorqueCurrentFOC(0.0);
+      new VelocityTorqueCurrentFOC(0.0).withUpdateFreqHz(0);
 
   // Timestamp inputs from Phoenix thread
   private final Queue<Double> timestampQueue;
@@ -105,7 +107,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     var driveConfig = new TalonFXConfiguration();
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = new Slot0Configs().withKP(0.1).withKI(0).withKD(0).withKS(0).withKV(0.124);
-    ;
     driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.driveGearRatio;
     driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.slipCurrent.in(Amps);
     driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DriveConstants.slipCurrent.in(Amps);
@@ -131,8 +132,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.encoderCANID;
     turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = DriveConstants.turnGearRatio;
-    turnConfig.MotionMagic.MotionMagicCruiseVelocity =
-        100.0 / DriveConstants.turnGearRatio;
+    turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / DriveConstants.turnGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
         turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
     turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * DriveConstants.turnGearRatio;

@@ -38,7 +38,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     for (int i = 0; i < limelights.length; i++) {
 
-      limelights[i].updateInputs(llInputs[i], RobotState.getPose());
+      limelights[i].updateInputs(llInputs[i], RobotState.getInstance().getPose());
       Logger.processInputs("Vision/" + limelights[i].getName(), llInputs[i]);
 
       for (int j = 0; j < llInputs[i].robotPose.length; j++) {
@@ -89,7 +89,8 @@ public class VisionSubsystem extends SubsystemBase {
         acceptedPoses.add(llInputs[i].robotPose[j]);
 
         // offer a new measurement to the RobotState
-        RobotState.addVisionMeasurement(
+        RobotState.getInstance()
+            .addVisionMeasurement(
                 new VisionMeasurement(
                     llInputs[i].robotPose[j],
                     llInputs[i].timestamp,
